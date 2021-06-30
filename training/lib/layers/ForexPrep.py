@@ -41,6 +41,10 @@ class MovingAverage(Layer):
 	def call(self, inputs, **kwargs):
 		return tf.reshape(tf.reduce_mean(tf.linalg.diag_part(tf.repeat(inputs, self.average_gap, axis=2), k=(-(inputs.shape[1]-self.average_gap), 0)), axis=2), (-1, inputs.shape[1]-self.average_gap+1, 1))
 
+	def get_config(self):
+		return {
+			"average_gap": self.average_gap
+		}
 
 class ForexPrep(Layer):
 
@@ -53,6 +57,11 @@ class ForexPrep(Layer):
 		self.moving_average = MovingAverage(average_gap)
 		self.final_concat = Concatenate(axis=2)
 		super(ForexPrep, self).__init__(**kwargs)
+
+	def get_config(self):
+		return {
+			"average_gap": self.moving_average.average_gap
+		}
 
 	def build(self, input_shape):
 		self.concat_reshape = Reshape(target_shape=(1, input_shape[1]-1, 1))

@@ -8,18 +8,25 @@ class FloatEmbedding(Layer):
 		self.units = units
 		super(FloatEmbedding, self).__init__(**kwargs)
 
+	def get_config(self):
+		return {
+			"units": self.units
+		}
+
 	def build(self, input_shape):
 		if len(input_shape) != 3:
 			raise Exception(f"Expected rank 3 but got input_shape={input_shape}")
 		self.w = self.add_weight(
 			shape=(input_shape[2], self.units),
 			initializer="random_normal",
-			trainable=True
+			trainable=True,
+			name="embedding_weights"
 		)
 		self.b = self.add_weight(
 			shape=(self.units,),
 			initializer="random_normal",
-			trainable=True
+			trainable=True,
+			name="embedding_bias"
 		)
 
 	def call(self, inputs, **kwargs):
@@ -33,6 +40,7 @@ class PositionalEncoding(Layer):
 
 	def call(self, inputs, **kwargs):
 		# inputs.shape[1] must be an even number
+		# TODO: FIX THE SIN AND COS AXIS ISSUE
 		r = tf.cast(tf.reshape(tf.range(inputs.shape[1]), (-1, 1)), tf.float64) / (
 				10000 ** (2 * tf.reshape(tf.range(inputs.shape[2]), (1, -1)) / inputs.shape[2]))
 		return tf.cast(inputs, tf.float64) + tf.reshape(tf.concat([tf.sin(r[::2]), tf.cos(r[1::2])], axis=1), (inputs.shape[1], inputs.shape[2]))
