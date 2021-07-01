@@ -40,8 +40,7 @@ class PositionalEncoding(Layer):
 
 	def call(self, inputs, **kwargs):
 		# inputs.shape[1] must be an even number
-		# TODO: FIX THE SIN AND COS AXIS ISSUE
 		r = tf.cast(tf.reshape(tf.range(inputs.shape[1]), (-1, 1)), tf.float64) / (
 				10000 ** (2 * tf.reshape(tf.range(inputs.shape[2]), (1, -1)) / inputs.shape[2]))
-		return tf.cast(inputs, tf.float64) + tf.reshape(tf.concat([tf.sin(r[::2]), tf.cos(r[1::2])], axis=1), (inputs.shape[1], inputs.shape[2]))
+		return tf.cast(inputs, tf.float64) + tf.reshape(tf.concat([tf.reshape(tf.sin(r[:,::2]), (r.shape[0], -1, 1)), tf.reshape(tf.sin(r[:,1::2]), (r.shape[0], -1, 1))], axis=2), r.shape)
 
