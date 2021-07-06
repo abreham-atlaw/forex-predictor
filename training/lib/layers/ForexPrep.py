@@ -1,6 +1,6 @@
 import tensorflow as tf
 
-from keras.layers import Layer, Concatenate, Reshape
+from keras.layers import Layer, Concatenate, Reshape, Activation
 
 
 class Delta(Layer):
@@ -46,6 +46,15 @@ class MovingAverage(Layer):
 			"average_gap": self.average_gap
 		}
 
+
+class WeightedMovingAverage(MovingAverage):
+
+	def __init__(self, average_gap, **kwargs):
+		super(WeightedMovingAverage, self).__init__(average_gap, **kwargs)
+
+	def call(self, inputs, **kwargs):
+		return tf.shape
+
 class ForexPrep(Layer):
 
 	def __init__(self, average_gap=7, **kwargs):
@@ -54,6 +63,7 @@ class ForexPrep(Layer):
 		self.concat = Concatenate(axis=1)
 		self.percentage = Percentage()
 		self.norm = Norm()
+		self.tanh = Activation("tanh")
 		self.moving_average = MovingAverage(average_gap)
 		self.final_concat = Concatenate(axis=2)
 		super(ForexPrep, self).__init__(**kwargs)
