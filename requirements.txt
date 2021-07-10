@@ -92,7 +92,7 @@ sklearn==0.0
 tensorboard==2.5.0
 tensorboard-data-server==0.6.1
 tensorboard-plugin-wit==1.8.0
-tensorflow==2.4.1
+tensorflow-cpu==2.4.1
 tensorflow-estimator==2.4.0
 termcolor==1.1.0
 terminado==0.10.0
@@ -109,4 +109,3 @@ websockets==9.0.2
 Werkzeug==2.0.0
 widgetsnbextension==3.5.1
 wrapt==1.12.1
-xgboost==1.4.2
