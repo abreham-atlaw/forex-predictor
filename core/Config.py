@@ -6,7 +6,7 @@ from training.lib.layers import Delta
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
-POLYGON_KEY = "123456789098765432" 
+POLYGON_KEY = os.environ.get("POLYGON_KEY") 
 INFORMATION_COLLECTOR_SLEEP_TIME = 60 #IN SECONDS
 
 PREDICTORS_CONFIGS = [
