@@ -5,6 +5,7 @@ from abc import ABC, abstractmethod
 
 from core.InformationCollector import InformationCollector
 from core.exceptions import CurrencyNotFoundException
+from training.lib.layers import MovingAverage
 
 
 class Predictor(ABC):
@@ -30,7 +31,8 @@ class Predictor0(Predictor):
 
 	def __init__(self, config):
 		super(Predictor0, self).__init__(config)
-		self.model: keras.Model = keras.models.load_model(config["model_path"], custom_objects=config["model_custom_objects"])
+		self.model: keras.Model = keras.models.load_model(config["model_path"],
+		                                                  custom_objects=config["model_custom_objects"])
 
 	def predict(self, base_currency, quote_currency) -> float:
 		margins = self.information_collector.get_exchange_margins(
@@ -60,7 +62,7 @@ class Predictor1(Predictor):
 			quote_currency=quote_currency
 		).reshape((-1, 1))
 
-		return (self.model.predict(exchanges[:-1].reshape((1, -1, 1))) - self.model.predict(exchanges[1:].reshape((1, -1, 1)))).reshape((1,))[0]
+		return (self.model.predict(exchanges[1:].reshape((1, -1, 1))) - self.model.predict(exchanges[:-1].reshape((1, -1, 1)))).reshape((1,))[0]
 
 
 class Predictor2(Predictor):
@@ -77,3 +79,22 @@ class Predictor2(Predictor):
 		).reshape((-1, 1))
 
 		return self.model.predict(exchanges.reshape((1, -1, 1))).reshape((1,))[0] - exchanges.reshape((-1,))[-1]
+
+
+class Predictor3(Predictor):
+
+	def __init__(self, config):
+		super(Predictor3, self).__init__(config)
+		self.model = keras.models.load_model(config["model_path"], custom_objects=config["model_custom_objects"])
+		self.ma = MovingAverage(self.config["averaging_window"])
+
+	def predict(self, base_currency, quote_currency) -> float:
+		exchanges = self.information_collector.get_exchanges(
+			time_units=self.config["look_back"] + self.config["averaging_window"],
+			base_currency=base_currency,
+			quote_currency=quote_currency
+		).reshape((-1, 1))
+
+		averaged = self.ma(exchanges.reshape((1, -1, 1)))
+
+		return (self.model.predict(averaged[:, 1:]) - self.model.predict(averaged[:, :-1])).reshape((1,))[0]
